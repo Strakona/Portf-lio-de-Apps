@@ -11,6 +11,11 @@ const Home = () => {
     const [selectedCategory, setSelectedCategory] = useState('Todas');
     const [categories, setCategories] = useState(['Todas']);
 
+    // Ideias form state
+    const [ideaContent, setIdeaContent] = useState('');
+    const [ideaLoading, setIdeaLoading] = useState(false);
+    const [ideaSuccess, setIdeaSuccess] = useState(false);
+
     useEffect(() => {
         fetchApps();
     }, []);
@@ -44,6 +49,29 @@ const Home = () => {
         const matchesCategory = selectedCategory === 'Todas' || app.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
+
+    const handleIdeaSubmit = async (e) => {
+        e.preventDefault();
+        if (!ideaContent.trim()) return;
+
+        setIdeaLoading(true);
+        try {
+            const { error } = await supabase
+                .from('ideas')
+                .insert([{ content: ideaContent }]);
+
+            if (error) throw error;
+
+            setIdeaSuccess(true);
+            setIdeaContent('');
+            setTimeout(() => setIdeaSuccess(false), 5000); // Hide success after 5s
+        } catch (error) {
+            console.error('Erro ao enviar ideia:', error.message);
+            alert('Não foi possível enviar sua ideia no momento. Tente novamente mais tarde.');
+        } finally {
+            setIdeaLoading(false);
+        }
+    };
 
     return (
         <div className="container home-container">
@@ -91,6 +119,38 @@ const Home = () => {
                     <p style={{ color: 'var(--text-secondary)' }}>Nenhum aplicativo encontrado.</p>
                 )}
             </div>
+
+            {/* Seção Deixe sua Ideia */}
+            <section className="ideas-section glass-panel">
+                <div className="ideas-content">
+                    <h2>Tem uma ideia incrível para o próximo App?</h2>
+                    <p className="ideas-subtitle">Compartilhe comigo e ela pode se transformar no próximo projeto de IA do portfólio!</p>
+
+                    {ideaSuccess ? (
+                        <div className="idea-success-message">
+                            Sua ideia foi enviada com sucesso! Muito obrigado pela contribuição. 🚀
+                        </div>
+                    ) : (
+                        <form onSubmit={handleIdeaSubmit} className="idea-form">
+                            <textarea
+                                value={ideaContent}
+                                onChange={(e) => setIdeaContent(e.target.value)}
+                                placeholder="Descreva sua ideia de aplicativo aqui..."
+                                className="idea-textarea"
+                                required
+                                rows={4}
+                            />
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-submit-idea"
+                                disabled={ideaLoading || !ideaContent.trim()}
+                            >
+                                {ideaLoading ? 'Enviando...' : 'Enviar Ideia'}
+                            </button>
+                        </form>
+                    )}
+                </div>
+            </section>
         </div>
     );
 };

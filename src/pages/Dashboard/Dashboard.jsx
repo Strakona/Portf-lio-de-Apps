@@ -9,7 +9,11 @@ const Dashboard = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [apps, setApps] = useState([]);
+    const [ideas, setIdeas] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('apps'); // 'apps' ou 'ideas'
+
+    // Form States para App
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ name: '', description: '', link: '', category: 'Geral', featured: false });
@@ -35,13 +39,19 @@ const Dashboard = () => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user || null);
             setAuthLoading(false);
-            if (session?.user) fetchApps();
+            if (session?.user) {
+                fetchApps();
+                fetchIdeas();
+            }
         });
 
         // Escutar mudanças de autenticação
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user || null);
-            if (session?.user) fetchApps();
+            if (session?.user) {
+                fetchApps();
+                fetchIdeas();
+            }
         });
 
         return () => subscription.unsubscribe();
@@ -60,6 +70,20 @@ const Dashboard = () => {
             console.error('Erro ao listar apps:', error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchIdeas = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('ideas')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setIdeas(data || []);
+        } catch (error) {
+            console.error('Erro ao buscar ideias:', error.message);
         }
     };
 
@@ -241,11 +265,29 @@ const Dashboard = () => {
         <div className="container dashboard-container">
             <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2>Dashboard Administrativo</h2>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button className="btn btn-primary" onClick={() => showForm ? handleCancelForm() : setShowForm(true)}>
-                        <Plus size={20} /> {showForm ? 'Cancelar' : 'Adicionar App'}
-                    </button>
-                    <button className="btn btn-outline" onClick={handleLogout} title="Sair do painel" style={{ padding: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className="dashboard-tabs">
+                        <button
+                            className={`btn ${activeTab === 'apps' ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setActiveTab('apps')}
+                            style={{ padding: '0.5rem 1rem' }}
+                        >
+                            Aplicativos
+                        </button>
+                        <button
+                            className={`btn ${activeTab === 'ideas' ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setActiveTab('ideas')}
+                            style={{ padding: '0.5rem 1rem' }}
+                        >
+                            Ideias de Usuários
+                        </button>
+                    </div>
+                    {activeTab === 'apps' && (
+                        <button className="btn btn-primary" onClick={() => showForm ? handleCancelForm() : setShowForm(true)}>
+                            <Plus size={20} /> {showForm ? 'Cancelar' : 'Adicionar App'}
+                        </button>
+                    )}
+                    <button className="btn btn-outline" onClick={handleLogout} title="Sair do painel" style={{ padding: '0.5rem' }}>
                         <LogOut size={20} color="var(--accent-color)" />
                     </button>
                 </div>

@@ -86,4 +86,70 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
     padding: 2rem 0;
+    width: 100%;
+}
+
+/* Ideas Section */
+.ideas-section {
+    margin-top: 5rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    border-radius: 24px;
+    background: rgba(30, 41, 59, 0.6);
+}
+
+.ideas-content h2 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.ideas-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.idea-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.idea-textarea {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.idea-textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.btn-submit-idea {
+    align-self: flex-end;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+}
+
+.idea-success-message {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeUp 0.5s ease;
 }
